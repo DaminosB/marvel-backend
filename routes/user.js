@@ -115,7 +115,7 @@ router.delete(
           .status(400)
           .json({ message: "This bookmark does not exist" });
       }
-
+      user.save();
       return res.status(200).json({ message: user.bookmarks });
     } catch (error) {
       return res.status(400).json({ message: error.message });
