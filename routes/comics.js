@@ -5,7 +5,7 @@ const marvelApiKey = process.env.MARVEL_API_KEY;
 
 const router = express.Router();
 
-router.get("/comics/", async (req, res) => {
+router.get("/comics", async (req, res) => {
   try {
     const { page, title } = req.body;
     // console.log(page, name);
