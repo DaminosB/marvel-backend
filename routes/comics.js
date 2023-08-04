@@ -7,8 +7,7 @@ const router = express.Router();
 
 router.get("/comics", async (req, res) => {
   try {
-    const { page, name } = req.body;
-    // console.log(page, name);
+    const { page, name } = req.query;
 
     const skip = (page - 1) * 100;
 
