@@ -14,6 +14,10 @@ router.post("/user/signup", async (req, res) => {
   try {
     const { email, username, password } = req.body;
 
+    if (!email || !username || !password) {
+      return res.status(400).json({ message: "All inputs must be filled" });
+    }
+
     const isEmailExist = await User.findOne({ "account.email": email });
     const isUsernameExist = await User.findOne({
       "account.username": username,
