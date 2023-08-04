@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get("/comics", async (req, res) => {
   try {
-    const { page, title } = req.body;
+    const { page, name } = req.body;
     // console.log(page, name);
 
     const skip = (page - 1) * 100;
@@ -15,7 +15,7 @@ router.get("/comics", async (req, res) => {
     let query = "";
 
     if (title) {
-      query = `skip=${skip}&title=${title}&apiKey=${marvelApiKey}`;
+      query = `skip=${skip}&title=${name}&apiKey=${marvelApiKey}`;
     } else {
       query = `skip=${skip}&apiKey=${marvelApiKey}`;
     }
