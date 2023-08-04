@@ -14,7 +14,7 @@ router.get("/comics", async (req, res) => {
 
     let query = "";
 
-    if (title) {
+    if (name) {
       query = `skip=${skip}&title=${name}&apiKey=${marvelApiKey}`;
     } else {
       query = `skip=${skip}&apiKey=${marvelApiKey}`;
