@@ -50,12 +50,12 @@ router.post("/user/login", async (req, res) => {
 
     const user = await User.findOne({ "account.email": email });
 
+    let submittedHash = "";
+
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     } else {
-      const submittedHash = SHA256(password + user.connexion.salt).toString(
-        base64
-      );
+      submittedHash = SHA256(password + user.connexion.salt).toString(base64);
     }
 
     if (user.connexion.hash !== submittedHash) {
