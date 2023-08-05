@@ -29,7 +29,7 @@ router.get("/characters", async (req, res) => {
   }
 });
 
-router.get("/characters/:characterID", async (req, res) => {
+router.get("/character/:characterID", async (req, res) => {
   try {
     const { characterID } = req.params;
 

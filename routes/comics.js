@@ -28,7 +28,7 @@ router.get("/comics", async (req, res) => {
   }
 });
 
-router.get("/comics/:comicID", async (req, res) => {
+router.get("/comic/:comicID", async (req, res) => {
   try {
     const { comicID } = req.params;
     const query = `${comicID}?apiKey=${marvelApiKey}`;
