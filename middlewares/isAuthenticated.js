@@ -5,8 +5,9 @@ const isAuthenticated = async (req, res, next) => {
     if (req.headers.authorization) {
       const sentToken = req.headers.authorization.replace("Bearer ", "");
       const foundUser = await User.findOne({ "connexion.token": sentToken });
+      console.log(foundUser);
       if (foundUser) {
-        req.body.user = foundUser;
+        req.params.user = foundUser;
         next();
       } else {
         return res.status(400).json({ message: "Unauthorised" });

@@ -3,6 +3,9 @@ const fileUpload = require("express-fileupload");
 const SHA256 = require("crypto-js/sha256");
 const base64 = require("crypto-js/enc-base64");
 const uid2 = require("uid2");
+const axios = require("axios");
+
+const marvelApiKey = process.env.MARVEL_API_KEY;
 
 const router = express.Router();
 
@@ -72,9 +75,10 @@ router.post("/user/login", async (req, res) => {
   }
 });
 
-router.get("/user/bookmarks", isAuthenticated, async (req, res) => {
+router.get("/user/bookmarks/:type", isAuthenticated, async (req, res) => {
   try {
-    const { user, type } = req.body;
+    const { user, type } = req.params;
+
     return res.status(200).json({ message: user.bookmarks[type] });
   } catch (error) {
     return res.status(400).json({ message: error.message });
@@ -82,23 +86,36 @@ router.get("/user/bookmarks", isAuthenticated, async (req, res) => {
 });
 
 router.post(
-  "/user/add-bookmark",
+  "/user/add-bookmark/:type/:itemID",
   isAuthenticated,
   fileUpload(),
   async (req, res) => {
     try {
-      const { user, type, itemID } = req.body;
+      const { user, type, itemID } = req.params;
 
+      const bookmarkToAdd = await axios.get(
+        `https://lereacteur-marvel-api.herokuapp.com/${type}/${itemID}?apiKey=${marvelApiKey}`
+      );
+
+      console.log(1, bookmarkToAdd.data);
+
+      const newBookmark = {
+        thumbnail: bookmarkToAdd.data.thumbnail,
+        description: bookmarkToAdd.data.description,
+        _id: bookmarkToAdd.data._id,
+      };
       switch (type) {
         case "comic":
-          user.bookmarks.comics.push(itemID);
+          newBookmark.title = bookmarkToAdd.data.title;
           break;
         case "character":
-          user.bookmarks.characters.push(itemID);
+          newBookmark.name = bookmarkToAdd.data.name;
       }
 
-      user.save();
+      user.bookmarks[`${type}s`].push(newBookmark);
 
+      user.save();
+      console.log(user);
       return res.status(200).json({ message: user.bookmarks });
     } catch (error) {
       return res.status(400).json({ message: error.message });
@@ -107,17 +124,22 @@ router.post(
 );
 
 router.delete(
-  "/user/remove-bookmark",
+  "/user/remove-bookmark/:type/:itemID",
   isAuthenticated,
   fileUpload(),
   async (req, res) => {
     try {
-      const { user, type, itemID } = req.body;
+      const { user, type, itemID } = req.params;
 
-      const indexToRemove = user.bookmarks[type].indexOf(itemID);
+      // const indexToRemove = user.bookmarks[`${type}s`].indexOf(itemID);
+      console.log(user);
+
+      const indexToRemove = user.bookmarks[`${type}s`].findIndex(
+        (element) => element._id === itemID
+      );
 
       if (indexToRemove !== -1) {
-        user.bookmarks[type].splice(indexToRemove, 1);
+        user.bookmarks[`${type}s`].splice(indexToRemove, 1);
       } else {
         return res
           .status(400)
