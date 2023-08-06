@@ -79,6 +79,8 @@ router.get("/user/bookmarks/:type", isAuthenticated, async (req, res) => {
   try {
     const { user, type } = req.params;
 
+    console.log(type);
+
     return res.status(200).json({ message: user.bookmarks[`${type}s`] });
   } catch (error) {
     return res.status(400).json({ message: error.message });
@@ -108,7 +110,7 @@ router.post(
       );
 
       if (isBookmarkExist !== -1) {
-        return res.status(400).json({ message: `${type} already bookmarked` });
+        return res.status(401).json({ message: `${type} already bookmarked` });
       }
 
       switch (type) {

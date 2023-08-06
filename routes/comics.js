@@ -43,6 +43,9 @@ router.get("/comics", async (req, res) => {
 
 router.get("/comic/:comicID", async (req, res) => {
   try {
+    const sentToken = req.headers.authorization.replace("Bearer ", "");
+    const foundUser = await User.findOne({ "connexion.token": sentToken });
+
     const { comicID } = req.params;
     const query = `${comicID}?apiKey=${marvelApiKey}`;
 
@@ -50,7 +53,15 @@ router.get("/comic/:comicID", async (req, res) => {
       `https://lereacteur-marvel-api.herokuapp.com/comic/${query}`
     );
 
-    return res.status(200).json({ message: response.data });
+    const dataToSend = response.data;
+    if (foundUser) {
+      dataToSend.bookmarks = [];
+      foundUser.bookmarks.comics.map((bookmark) =>
+        dataToSend.bookmarks.push(bookmark._id)
+      );
+    }
+
+    return res.status(200).json({ message: dataToSend });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
@@ -58,13 +69,24 @@ router.get("/comic/:comicID", async (req, res) => {
 
 router.get("/comics/:characterID", async (req, res) => {
   try {
+    const sentToken = req.headers.authorization.replace("Bearer ", "");
+    const foundUser = await User.findOne({ "connexion.token": sentToken });
+
     const { characterID } = req.params;
 
     const response = await axios.get(
       `https://lereacteur-marvel-api.herokuapp.com/comics/${characterID}?apiKey=${marvelApiKey}`
     );
 
-    return res.status(200).json({ message: response.data });
+    const dataToSend = response.data;
+    if (foundUser) {
+      dataToSend.bookmarks = [];
+      foundUser.bookmarks.comics.map((bookmark) =>
+        dataToSend.bookmarks.push(bookmark._id)
+      );
+    }
+
+    return res.status(200).json({ message: dataToSend });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
