@@ -5,8 +5,13 @@ const marvelApiKey = process.env.MARVEL_API_KEY;
 
 const router = express.Router();
 
+const User = require("../modeles/User");
+
 router.get("/comics", async (req, res) => {
   try {
+    const sentToken = req.headers.authorization.replace("Bearer ", "");
+    const foundUser = await User.findOne({ "connexion.token": sentToken });
+
     const { page, name } = req.query;
 
     const skip = (page - 1) * 100;
@@ -22,6 +27,14 @@ router.get("/comics", async (req, res) => {
     const response = await axios.get(
       `https://lereacteur-marvel-api.herokuapp.com/comics?${query}`
     );
+
+    const dataToSend = response.data;
+    if (foundUser) {
+      dataToSend.bookmarks = [];
+      foundUser.bookmarks.comics.map((bookmark) =>
+        dataToSend.bookmarks.push(bookmark._id)
+      );
+    }
     return res.status(200).json({ message: response.data });
   } catch (error) {
     return res.status(400).json({ message: error.message });
