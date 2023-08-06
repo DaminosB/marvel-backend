@@ -97,13 +97,20 @@ router.post(
         `https://lereacteur-marvel-api.herokuapp.com/${type}/${itemID}?apiKey=${marvelApiKey}`
       );
 
-      console.log(1, bookmarkToAdd.data);
-
       const newBookmark = {
         thumbnail: bookmarkToAdd.data.thumbnail,
         description: bookmarkToAdd.data.description,
         _id: bookmarkToAdd.data._id,
       };
+
+      const isBookmarkExist = user.bookmarks[`${type}s`].findIndex(
+        (element) => element._id === itemID
+      );
+
+      if (isBookmarkExist !== -1) {
+        return res.status(400).json({ message: `${type} already bookmarked` });
+      }
+
       switch (type) {
         case "comic":
           newBookmark.title = bookmarkToAdd.data.title;
@@ -115,8 +122,7 @@ router.post(
       user.bookmarks[`${type}s`].push(newBookmark);
 
       user.save();
-      console.log(user);
-      return res.status(200).json({ message: user.bookmarks });
+      return res.status(200).json({ message: "Bookmark successfully added" });
     } catch (error) {
       return res.status(400).json({ message: error.message });
     }
@@ -131,9 +137,6 @@ router.delete(
     try {
       const { user, type, itemID } = req.params;
 
-      // const indexToRemove = user.bookmarks[`${type}s`].indexOf(itemID);
-      console.log(user);
-
       const indexToRemove = user.bookmarks[`${type}s`].findIndex(
         (element) => element._id === itemID
       );
@@ -146,7 +149,7 @@ router.delete(
           .json({ message: "This bookmark does not exist" });
       }
       user.save();
-      return res.status(200).json({ message: user.bookmarks });
+      return res.status(200).json({ message: "Bookmark successfully removed" });
     } catch (error) {
       return res.status(400).json({ message: error.message });
     }
