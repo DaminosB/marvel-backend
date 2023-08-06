@@ -79,7 +79,7 @@ router.get("/user/bookmarks/:type", isAuthenticated, async (req, res) => {
   try {
     const { user, type } = req.params;
 
-    return res.status(200).json({ message: user.bookmarks[type] });
+    return res.status(200).json({ message: user.bookmarks[`${type}s`] });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
